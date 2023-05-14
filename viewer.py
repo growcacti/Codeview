@@ -2,7 +2,7 @@
 
 import tkinter as tk
 from tkinter import *
-from tkinter import filedialog, Toplevel, Frame, Scrollbar
+from tkinter import filedialog, Toplevel, Frame, Scrollbar, StringVar
 from tkinter.filedialog import askopenfilename, asksaveasfilename, askdirectory
 
 from tkinter import ttk
@@ -114,46 +114,45 @@ class FindReplaceWidget:
         self.top = Toplevel()
         self.textwidget = textwidget
         self.fr_buttons = ttk.Frame(self.top, relief=tk.RAISED)
+       
+        
         self.label1 = tk.Label(self.fr_buttons, text ='Find').grid(row=11, column=0)
         self.entry = tk.Entry(self.fr_buttons, width=15,bd=12,bg="wheat")
         self.entry.grid(row=12, column=0)
 
-        self.find1 = tk.Button(self.fr_buttons, text ='Find', bd=8, command=lambda : self.find(self.textwidget, self.entry))
+        self.find1 = tk.Button(self.fr_buttons, text ='Find', bd=8, command=lambda : self.find(self.textwidget))
         self.find1.grid(row=13,column=0)
         self.label2 = tk.Label(self.fr_buttons, text = "Replace With ").grid(row=14, column=0)
-
+        
         self.entry2 = tk.Entry(self.fr_buttons, width=15,bd=12, bg = "seashell")
         self.entry2.grid(row=15, column=0)
         self.entry2.focus_set()
-
-        self.replace1 = tk.Button(self.fr_buttons, text = 'Find&Replace',bd=8,command=lambda : self.find_replace(self.textwidget,self.entry1,self.entry2))
+        self.replace1 = tk.Button(self.fr_buttons, text = 'Find&Replace',bd=8,command=lambda : self.find_replace(self.textwidget))
         self.replace1.grid(row=16, column=0)
-
-
         self.fr_buttons.grid(row=0, column=0, sticky="ns")
-        self.find1.config(command = lambda : self.find(self.textwidget, self.entry.get()))
-        self.replace1.config(command = lambda : self.findNreplace(self.textwidget, self.entry.get() ,self.entry2.get()))
 
-    def find(self, textwidget,entrywidget):
+
+    def find(self, textwidget):
         self.textwidget = textwidget
-     
+        self.var1 = self.entry.get()
+        
     # remove tag 'found' from index 1 to END
         self.textwidget.tag_remove('found', '1.0', END)
-        entry = self.entry.get()
+       
        #self.finder = self.entry.get()
      
-        if (entry):
+        if (self.var1):
             idx = '1.0'
             while 1:
                 # searches for desired string from index 1
-                idx = self.textwidget.search(entry, idx, nocase = 1,
+                idx = self.textwidget.search(self.var1, idx, nocase = 1,
                                 stopindex = END)
                  
                 if not idx: break
                  
                 # last index sum of current index and
                 # length of text
-                lastidx = '% s+% dc' % (idx, len(entry))
+                lastidx = '% s+% dc' % (idx, len(self.var1))
                  
      
                 # overwrite 'Found' at idx
@@ -162,20 +161,25 @@ class FindReplaceWidget:
  
         # mark located string as red
          
-        self.textwidget.tag_config('found', fg ='blue')
-        self.textwidget.tag_config('found', bg='yellow')
+
+                self.textwidget.tag_config('found', background ='yellow')
+            self.entry.focus.set()        
 
 
     
 
-    def find_replace(self,textwidget,entry1,entry2):
+    def find_replace(self,textwidget):
         self.textwidget = textwidget
+        self.var1 = self.entry.get()
+    
+        self.var2 = self.entry2.get()
+        
         # remove tag 'found' from index 1 to END
         self.textwidget.tag_remove('found', '1.0', END)
          
         # returns to widget currently in focus
-        self.fin = self.entry.get()
-        self.repl = self.entry2.get()
+        self.fin = self.var1
+        self.repl = self.var2
          
         if (self.fin and self.repl):
             idx = '1.0'
@@ -234,7 +238,7 @@ class SideButtonframe(ttk.Frame):
         self.btnundo.grid(row=12, column=0, pady=5)
         self.btnredo = tk.Button(self.fr_buttons, text="Redo", bd=4, command=lambda: self.redo())
         self.btnredo.grid(row=13, column=0, pady=5)
-        self.btnfr = tk.Button(self.fr_buttons, text="Find & or Replace", bd=6, command=lambda: self.findr(self.textwidget))
+        self.btnfr = tk.Button(self.fr_buttons, text="Find & or Replace", bd=6, command=lambda: self.finder(self.textwidget))
         self.btnfr.grid(row=14, column=0, pady=5)
         self.binding()
 
@@ -243,7 +247,7 @@ class SideButtonframe(ttk.Frame):
 
 
 
-    def findr(self, textwidget):
+    def finder(self, textwidget):
         self.textwidget = textwidget
         fr = FindReplaceWidget(self.textwidget)
         
